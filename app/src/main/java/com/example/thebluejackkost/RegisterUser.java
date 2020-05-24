@@ -80,7 +80,6 @@ public class RegisterUser extends AppCompatActivity {
                     Toast.makeText(RegisterUser.this, "Username must consist of at least 1 digit and alphabetic", Toast.LENGTH_LONG).show();
                     return;
                 }
-
 //                if(UserDB.users.size() > 0){
 //                    for(int i = 0; i < UserDB.users.size(); i++){
 //                        if(username.equals(UserDB.users.get(i).getUsername())){
