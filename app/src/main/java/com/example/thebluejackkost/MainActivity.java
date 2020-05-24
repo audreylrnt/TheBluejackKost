@@ -20,7 +20,9 @@ public class MainActivity extends AppCompatActivity {
         Button btnLogin = findViewById(R.id.btnLogin);
         Button btnRegister = findViewById(R.id.btnRegister);
         Button btnTempLogin = findViewById(R.id.btnMasuk);
-
+        DBHelper dbHelper = new DBHelper(this);
+        final long rowCount = dbHelper.getTableUserRowCount();
+        Toast.makeText(MainActivity.this, "Row Count = " + rowCount, Toast.LENGTH_LONG).show();
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -34,11 +36,11 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Input password", Toast.LENGTH_LONG).show();
                     return;
                 }
-//                if(UserDB.users.size() == 0){
-//                    Toast.makeText(MainActivity.this, "Please register yourself first", Toast.LENGTH_LONG).show();
-//                    return;
-//                }
-//                for (int i = 0; i < UserDB.users.size(); i++) {
+                if(rowCount == 0){
+                    Toast.makeText(MainActivity.this, "Please register yourself first", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                for (int i = 0; i < rowCount; i++) {
 //                    if(username.equals(UserDB.users.get(i).getUsername()) && password.equals(UserDB.users.get(i).getPassword())){
 //                        Intent toKostList = new Intent(MainActivity.this, KostList.class);
 //                        String userId = UserDB.users.get(i).getId();
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 //                        finish();
 //                        return;
 //                    }
-//                }
+                }
                 Toast.makeText(MainActivity.this, "Username/password not registered", Toast.LENGTH_LONG).show();
                 return;
             }

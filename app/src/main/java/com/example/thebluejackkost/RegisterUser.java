@@ -5,8 +5,10 @@ import androidx.core.app.ActivityCompat;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -19,7 +21,7 @@ import android.widget.Toast;
 import java.util.Calendar;
 
 public class RegisterUser extends AppCompatActivity {
-
+    public static final String TAG = "RegisterUser";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,14 +34,13 @@ public class RegisterUser extends AppCompatActivity {
         final RadioGroup rgGender = findViewById(R.id.rg_gender);
         final CheckBox cbAgreement = findViewById(R.id.cbAgreement);
         Button btnRegister = findViewById(R.id.btnRegister);
-
+        final DBHelper dbHelper = new DBHelper(this);
         DOBContainer.setFocusable(false);
         DOBContainer.setKeyListener(null);
         Calendar calendar = Calendar.getInstance();
         final int year = calendar.get(Calendar.YEAR);
         final int month = calendar.get(Calendar.MONTH);
         final int day = calendar.get(Calendar.DAY_OF_MONTH);
-
         DOBContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,7 +66,7 @@ public class RegisterUser extends AppCompatActivity {
                 String DOB = DOBContainer.getText()+"";
                 String gender = "";
                 int genderId = rgGender.getCheckedRadioButtonId();
-
+                long rowCount = dbHelper.getTableUserRowCount();
 
                 if(username.equals("")){
                     Toast.makeText(RegisterUser.this, "Input username", Toast.LENGTH_LONG).show();
@@ -79,10 +80,11 @@ public class RegisterUser extends AppCompatActivity {
                     Toast.makeText(RegisterUser.this, "Username must consist of at least 1 digit and alphabetic", Toast.LENGTH_LONG).show();
                     return;
                 }
+
 //                if(UserDB.users.size() > 0){
 //                    for(int i = 0; i < UserDB.users.size(); i++){
 //                        if(username.equals(UserDB.users.get(i).getUsername())){
-//                            Toast.makeText(RegisterUser.this, "Username must be unique", Toast.LENGTH_LONG).show();
+
 //                            return;
 //                        }
 //                    }
@@ -136,17 +138,21 @@ public class RegisterUser extends AppCompatActivity {
                 }
 
                 String userId = "";
-//                userId = String.format("US%03d", UserDB.users.size()+1);
-//
-//                User u = new User(userId, username, password, phoneNo, gender, DOB);
-//                UserDB.users.add(u);
-                String message = "Registered!";
-                String number = phoneNo;
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(number, null, message, null, null);
-                Intent toLogin = new Intent(RegisterUser.this, MainActivity.class);
-                startActivity(toLogin);
-                finish();
+                userId = String.format("US%03d", rowCount + 1);
+                User user = new User(userId, username, password, phoneNo, gender, DOB);
+                boolean isAdded = dbHelper.tableUserInsertData(user);
+                if(isAdded){
+                    String message = "Registered!";
+                    String number = phoneNo;
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(number, null, message, null, null);
+                    Intent toLogin = new Intent(RegisterUser.this, MainActivity.class);
+                    startActivity(toLogin);
+                    finish();
+                }
+                else{
+                    Toast.makeText(RegisterUser.this, "Data failed to be inserted", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
